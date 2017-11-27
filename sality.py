@@ -33,7 +33,7 @@ last_section_phys  = Dword(last_section + 0xC)
 
 entrypoint = Dword(header + 0x28) - first_section_virt + first_section_phys
 src = last_section_phys						# location to decrypt (last section)
-amount_to_decrypt = last_section_size / 2	# number of words to decrypt
+words_to_decrypt = last_section_size / 2	# number of words to decrypt
 xor_key = Dword(entrypoint + XOR_KEY_OFFSET)		
 
 # sality begins with PUSHA, CALL+0x55
@@ -43,11 +43,11 @@ if Dword(entrypoint) != 0x0055E860:
 
 # decrypt last section in the binary
 data = bytearray()
-while amount_to_decrypt > 0:
+while words_to_decrypt > 0:
 	word = Word(src)
 	src += 2
 
-	xor = (amount_to_decrypt * xor_key) - (amount_to_decrypt << 1)
+	xor = (words_to_decrypt * xor_key) - (words_to_decrypt << 1)
 	word ^= xor
 
 	# ascii chars encoded via another XOR
@@ -61,7 +61,7 @@ while amount_to_decrypt > 0:
 	data.append(byte1)
 	data.append(byte2)
 
-	amount_to_decrypt -= 1
+	words_to_decrypt -= 1
 
 # get urls from last section
 url = ""
